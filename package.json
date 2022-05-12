@@ -1,0 +1,19 @@
+{
+    "name": "SmartServer-WebSocket-TypeScript",
+    "version": "1.0.0",
+    "description": "TypeScript ver.",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pjh94/SmartServer-WebSocket-TypeScript.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/pjh94/SmartServer-WebSocket-TypeScript/issues"
+    },
+    "homepage": "https://github.com/pjh94/SmartServer-WebSocket-TypeScript#readme"
+}
