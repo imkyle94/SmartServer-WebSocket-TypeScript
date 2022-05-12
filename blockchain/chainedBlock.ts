@@ -45,8 +45,8 @@ async function initBlocks() {
 }
 
 //예상 채굴 시간과 난이도 조절 단위수를 변수로 설정한다
-const BLOCK_GENERATION_INTERVAL = 10; //second
-const DIFFICULT_ADJUSTMENT_INTERVAL = 10; //in blocks
+const BLOCK_GENERATION_INTERVAL: number = 10; //second
+const DIFFICULT_ADJUSTMENT_INTERVAL: number = 10; //in blocks
 
 //블럭 형태 (헤더, 바디)
 class Block {
@@ -84,7 +84,7 @@ const getVersion = (): string => {
     return JSON.parse(package).version;
 };
 
-const createGenesisBlock = () => {
+function createGenesisBlock() {
     const version: string = getVersion();
     const index: number = 0; //맨처음이라 인덱스0
     const previousHash: string = "0".repeat(64); //sha256암호가 64자리니까 0을 64자리로 바꿔줌
@@ -108,7 +108,7 @@ const createGenesisBlock = () => {
         nonce
     );
     return new Block(header, body);
-};
+}
 
 let Blocks = [createGenesisBlock()];
 //블록저장할수있는애들, 여러개 들어갈 수 있는 배열을 만들어줌
@@ -117,6 +117,7 @@ let Blocks = [createGenesisBlock()];
 function getBlocks() {
     return Blocks;
 }
+
 //제일 마지막에 만든 블록 가져오기
 function getLastBlock() {
     //길이 1이니까 1-1 =0 즉 첫번째배열 불러와
@@ -315,16 +316,16 @@ function getDifficulty(blocks) {
     return lastBlock.header.difficulty;
 }
 
-function getAdjustDifficulty(lastBlock, blocks) {
+function getAdjustDifficulty(lastBlock: object, blocks: object): number {
     // 지금 블록에서 난이도 조절 단위 수만큼의 전 블록과의 time
     //즉, 생성시간을 비교해서 자신의 예상 시간보다 느리거나 빠르면 난이도를 조절한다.
     //적당하면 난이도가 유지되고 블럭의 생성시간이 느리면 난이도를 낮추고, 빠르면 난이도를 높인다.
-    const preAdjustmentBlock =
+    const preAdjustmentBlock :=
         blocks[blocks.length - DIFFICULT_ADJUSTMENT_INTERVAL];
     //시간
-    const elapsedTime =
+    const elapsedTime: number =
         lastBlock.header.timestamp - preAdjustmentBlock.header.timestamp;
-    const expectedTime =
+    const expectedTime: number =
         BLOCK_GENERATION_INTERVAL * DIFFICULT_ADJUSTMENT_INTERVAL;
 
     if (elapsedTime / 2 > expectedTime) {
@@ -336,12 +337,12 @@ function getAdjustDifficulty(lastBlock, blocks) {
     }
 }
 
-function getCurrentTimestamp() {
+function getCurrentTimestamp(): number {
     //Math.round 반올림함수
     return Math.round(new Date().getTime() / 1000);
 }
 
-function isValidTimestamp(newBlock, prevBlock) {
+function isValidTimestamp(newBlock: object, prevBlock: object): boolean {
     console.log(
         "시간 경과:",
         newBlock.header.timestamp - prevBlock.header.timestamp
@@ -355,11 +356,10 @@ function isValidTimestamp(newBlock, prevBlock) {
     if (getCurrentTimestamp() - newBlock.header.timestamp > 60) {
         return false;
     }
-
     return true;
 }
 
-module.exports = {
+export {
     hashMatchesDifficulty,
     isValidTimestamp,
     getBlocks,
