@@ -5,6 +5,8 @@
     "description": "TypeScript ver.",
     "main": "index.js",
     "scripts": {
+        "tsc-dev": "ts-node src",
+        "tsc-build": "tsc && node dist",
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
