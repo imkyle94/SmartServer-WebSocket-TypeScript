@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, Request, Response, NextFunction } from "express";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -90,10 +90,10 @@ app.use("/apis", apisRouter);
 app.use("/apis/block", blockRouter);
 
 // ERROR 메세지 창
-app.use((req: Request, res: Response, next) => {
-    interface Error {
-        status?: number;
-    }
+app.use((req: Request, res: Response, next: NextFunction) => {
+    // interface Error {
+    // status?: number;
+    // }
     const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
     // error.status = 404;
     // logger.info("hello");
@@ -101,11 +101,11 @@ app.use((req: Request, res: Response, next) => {
     next(error);
 });
 
-app.use((err, req: Request, res: Response, next) => {
-    console.error(err);
-    res.locals.message = err.message;
-    res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
-    res.status(err.status || 500);
+app.use((error, req: Request, res: Response, next: NextFunction) => {
+    console.error(error);
+    res.locals.message = error.message;
+    res.locals.error = process.env.NODE_ENV !== "production" ? error : {};
+    res.status(error.status || 500);
     res.render("error");
 });
 
