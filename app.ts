@@ -9,7 +9,7 @@ import path from "path";
 import helmet from "helmet";
 import hpp from "hpp";
 
-import { sequelize } from "./models/index.js";
+import { sequelize } from "./models/index";
 
 import cookieParser from "cookie-parser";
 import session from "express-session";
