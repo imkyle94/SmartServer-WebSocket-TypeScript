@@ -84,10 +84,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // URL과 라우터 매칭
-app.use("/", indexRouter);
-app.use("/auth", authRouter);
-app.use("/apis", apisRouter);
-app.use("/apis/block", blockRouter);
+// app.use("/", indexRouter);
+// app.use("/auth", authRouter);
+// app.use("/apis", apisRouter);
+// app.use("/apis/block", blockRouter);
 
 // ERROR 메세지 창
 app.use((req: Request, res: Response, next: NextFunction) => {
