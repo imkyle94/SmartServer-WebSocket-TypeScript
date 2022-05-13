@@ -1,12 +1,12 @@
-const net = require("net");
-const ws = require("ws");
+import WebSocket, { WebSocketServer } from "ws";
+
+import fs from "fs";
+
 const { serverData } = require("./serverData");
 const Blocks = require("./models/blocks");
 const Transactions = require("./models/transactions");
-const fs = require("fs");
 
-const { sequelize } = require("./models/index.js");
-const WebSocket = require("ws");
+import { sequelize } from "../models/index";
 
 // DB와 연결
 sequelize
@@ -20,9 +20,10 @@ sequelize
     console.error(err);
   });
 
+// state
 let clients = [];
-let vote = 0;
-let vote2 = [0];
+let vote: number = 0;
+let vote2: number = [0];
 let block = [];
 let pool = [];
 
@@ -30,21 +31,11 @@ function getPool() {
   return pool;
 }
 
-// const server = net.createServer(function (client) {
-
-const server = new WebSocket.Server({ port: 8880 });
+// WebSocket Server
+const server = new WebSocketServer({ port: 8080 });
 
 server.on("connection", function (client, req) {
-  console.log("서버 연결");
-
-  // 처음 연결시 자기 파일 생성
-  // 연습하려고
-  // fs.sendFileSync(
-  //   `./local/${client.remotePort}.txt`,
-  //   "hi",
-  //   "utf8",
-  //   (err) => {}
-  // );
+  console.log("WebSocket Server Connect!");
 
   clients.push(client);
 
@@ -61,6 +52,7 @@ server.on("connection", function (client, req) {
 
   client.on("message", async function (data) {
     const data2 = data.toString();
+
     console.log(data2);
     Jh1 = [];
     jh = 0;
@@ -175,7 +167,7 @@ server.on("connection", function (client, req) {
   });
 
   client.on("end", function () {
-    console.log("클라 누구 끊킴");
+    console.log("WebSocket Client Well Exit!");
   });
 });
 

@@ -30,26 +30,26 @@ const app: Express = express();
 
 // DB와 연결
 sequelize
-    // sync : MySQL에 테이블이 존재 하지 않을때 생성
-    //      force: true   => 이미 테이블이 있으면 drop하고 다시 테이블 생성
-    .sync({ force: false })
-    .then(() => {
-        console.log("Database connected successfully");
-    })
-    .catch((err) => {
-        console.error(err);
-    });
+  // sync : MySQL에 테이블이 존재 하지 않을때 생성
+  //      force: true   => 이미 테이블이 있으면 drop하고 다시 테이블 생성
+  .sync({ force: false })
+  .then(() => {
+    console.log("Database connected successfully");
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
 // PORT setting
 const PORT: number = 80;
 app.set("port", process.env.PORT || PORT);
 
 if (process.env.NODE_ENV === "production") {
-    app.use(morgan("combined"));
-    app.use(helmet());
-    app.use(hpp());
+  app.use(morgan("combined"));
+  app.use(helmet());
+  app.use(hpp());
 } else {
-    app.use(morgan("dev"));
+  app.use(morgan("dev"));
 }
 
 app.use("/", express.static(path.join(__dirname, "./build")));
@@ -60,19 +60,19 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // req.session 객체 생성
 const sessionOption: object = {
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET,
-    cookie: {
-        httpOnly: true,
-        secure: false,
-    },
-    // redis저장 설정
-    // store: new RedisStore({ client: redisClient }),
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+  // redis저장 설정
+  // store: new RedisStore({ client: redisClient }),
 };
 if (process.env.NODE_ENV === "production") {
-    // sessionOption.proxy = true;
-    // sessionOption.cookie.secure = true;
+  // sessionOption.proxy = true;
+  // sessionOption.cookie.secure = true;
 }
 app.use(session(sessionOption));
 
@@ -91,27 +91,27 @@ app.use(passport.session());
 
 // ERROR 메세지 창
 app.use((req: Request, res: Response, next: NextFunction) => {
-    // interface Error {
-    // status?: number;
-    // }
-    const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
-    // error.status = 404;
-    // logger.info("hello");
-    // logger.error(error.message);
-    next(error);
+  // interface Error {
+  // status?: number;
+  // }
+  const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
+  // error.status = 404;
+  // logger.info("hello");
+  // logger.error(error.message);
+  next(error);
 });
 
 app.use((error, req: Request, res: Response, next: NextFunction) => {
-    console.error(error);
-    res.locals.message = error.message;
-    res.locals.error = process.env.NODE_ENV !== "production" ? error : {};
-    res.status(error.status || 500);
-    res.render("error");
+  console.error(error);
+  res.locals.message = error.message;
+  res.locals.error = process.env.NODE_ENV !== "production" ? error : {};
+  res.status(error.status || 500);
+  res.render("error");
 });
 
 app.use(otherRouter);
 
 // PORT 연결상태 확인
 app.listen(app.get("port"), () =>
-    console.log(`Listening on port ${app.get("port")}`)
+  console.log(`Listening on port ${app.get("port")}`)
 );
