@@ -150,3 +150,9 @@ server.on("connection", function connection(ws, client, request) {
         console.log("WebSocket Client Well Exit!");
     });
 });
+
+function getPool() {
+    return pool;
+}
+
+export { getPool };
