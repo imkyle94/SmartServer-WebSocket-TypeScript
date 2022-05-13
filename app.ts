@@ -14,8 +14,8 @@ import { db, sequelize } from "./models/index";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 
-// import passport from "passport";
-// import passportConfig from "./passport";
+import passport from "passport";
+import passportConfig from "./passport";
 
 // 라우터 선언
 import indexRouter from "./routers/index";

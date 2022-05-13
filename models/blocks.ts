@@ -66,8 +66,6 @@ Blocks.init(
     }
 );
 
-console.log(Blocks);
-
 // Blocks.hasMany(Transactions, {
 //     foreignKey: "index",
 //     sourceKey: "index",

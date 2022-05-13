@@ -11,9 +11,6 @@ const env: string = process.env.NODE_ENV || "development";
 // MySQL connection setting
 import { config } from "../config/config";
 
-console.log("hi");
-console.log(__dirname);
-
 const sequelize = new Sequelize(
     config.database,
     config.username,
@@ -35,7 +32,7 @@ fs.readdirSync(__dirname)
     .forEach((file: any) => {
         // const model = require(path.join(__dirname, file))(sequelize, DataTypes);
         const model = import(path.join(__dirname, file)).then(
-            (a) => (db[file] = a)
+            (model) => (db[file] = model)
         );
     });
 
