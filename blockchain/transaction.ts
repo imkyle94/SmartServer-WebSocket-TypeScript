@@ -1,12 +1,18 @@
-const CryptoJS = require("crypto-js");
-const ecdsa = require("elliptic");
+import sha256 from "crypto-js/sha256";
+
+import ecdsa from "elliptic";
 const ec = new ecdsa.ec("secp256k1");
 
-const { generatePrivatekey } = require("./encryption");
+import { generatePrivatekey } from "./encryption";
 
-class TxOut {
+interface ITxOut {
+    address: string;
+    amount: number;
+}
+
+class TxOut implements ITxOut {
     //주소와 코인의 양으로 구성
-    constructor(address, amount) {
+    constructor(public address: string, public amount: number) {
         this.address = address;
         this.amount = amount;
     }
@@ -48,7 +54,7 @@ const getTransactionId = (transaction) => {
         .reduce((a, b) => a + b, "");
 
     // return { txInContent, txOutContent };
-    return CryptoJS.SHA256(txInContent + txOutContent).toString();
+    return sha256(txInContent + txOutContent).toString();
 };
 
 function getTransactionId2(data1, data2) {
@@ -58,7 +64,7 @@ function getTransactionId2(data1, data2) {
     const q2 = [data2.address, data2.amount];
     const cd2 = q2.reduce((a, b) => a + b);
 
-    return CryptoJS.SHA256(cd1 + cd2).toString();
+    return sha256(cd1 + cd2).toString();
 }
 
 function getTransactionId3(transaction) {
@@ -68,7 +74,7 @@ function getTransactionId3(transaction) {
     const q2 = [transaction.txOuts.address, transaction.txOuts.amount];
     const cd2 = q2.reduce((a, b) => a + b);
 
-    return CryptoJS.SHA256(cd1 + cd2).toString();
+    return sha256(cd1 + cd2).toString();
 }
 
 const toHexString = (byteArray) => {
@@ -170,4 +176,4 @@ function checkValidTransaction(transaction) {
     return true;
 }
 
-module.exports = { makeTransaction, checkValidTransaction };
+export { makeTransaction, checkValidTransaction };

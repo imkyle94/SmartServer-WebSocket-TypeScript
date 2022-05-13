@@ -80,7 +80,7 @@ server.on("connection", function connection(ws, client, request) {
                         // 여기 헤더로 블록 부분
                         await Blocks.create(data3.header);
 
-                        for (i = 0; i < pool.length; i++) {
+                        for (let i = 0; i < pool.length; i++) {
                             // await Transactions.create({
                             //     index: data3.header.index,
                             //     id2: pool[i].id,

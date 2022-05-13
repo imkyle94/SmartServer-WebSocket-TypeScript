@@ -1,17 +1,17 @@
 import fs from "fs";
 import merkle from "merkle";
-import cryptoJs from "crypto-js";
+import sha256 from "crypto-js/sha256";
 import random from "random";
 // const { randomBytes } = require('crypto')
 
-import dbBlocks from "../models/blocks";
+import { Blocks } from "../models/blocks";
 
 // 블록 아래로 내려놈
 
 async function initBlocks() {
-    const dbBlock = await dbBlocks.findAll();
+    const dbBlock = await Blocks.findAll();
     if (dbBlock.length > 0) {
-        Blocks = [];
+        Blocks1 = [];
         let version;
         let index;
         let previousHash;
@@ -22,7 +22,7 @@ async function initBlocks() {
         let header;
         let body;
 
-        for (i = 0; i < dbBlock.length; i++) {
+        for (let i = 0; i < dbBlock.length; i++) {
             (version = dbBlock[i].version),
                 (index = dbBlock[i].index),
                 (previousHash = dbBlock[i].previousHash),
@@ -39,7 +39,7 @@ async function initBlocks() {
                     difficulty,
                     nonce
                 ));
-            Blocks[i] = new Block(header, body);
+            Blocks1[i] = new Block(header, body);
         }
     }
 }
@@ -50,21 +50,30 @@ const DIFFICULT_ADJUSTMENT_INTERVAL: number = 10; //in blocks
 
 //블럭 형태 (헤더, 바디)
 class Block {
-    // constructor(public header:object, public body:object) {
-    //   this.header = header;
-    //     this.body = body;
-    // }
+    header: object;
+    body: object;
+    constructor(header: object, body: object) {
+        this.header = header;
+        this.body = body;
+    }
 }
-
 class BlockHeader {
+    version: string;
+    index: number;
+    previousHash: string;
+    timestamp: number;
+    merkleRoot: string;
+    difficulty: number;
+    nonce: number;
+
     constructor(
-        version,
-        index,
-        previousHash,
-        timestamp,
-        merkleRoot,
-        difficulty,
-        nonce
+        version: string,
+        index: number,
+        previousHash: string,
+        timestamp: number,
+        merkleRoot: string,
+        difficulty: number,
+        nonce: number
     ) {
         this.version = version;
         this.index = index;
@@ -78,10 +87,10 @@ class BlockHeader {
 }
 
 //버전계산하는 함수
-
 const getVersion = (): string => {
-    const package = fs.readFileSync("package.json");
-    return JSON.parse(package).version;
+    // const packageJson: object = fs.readFileSync("package.json");
+    // return JSON.parse(packageJson).version;
+    return "A";
 };
 
 function createGenesisBlock() {
@@ -93,7 +102,8 @@ function createGenesisBlock() {
     const timestamp: number = 1231006505;
     const body: object = ["제네시스블록 바디임요"];
     const tree: string = merkle("sha256").sync(body); //바디값불러와서 sha256으로 암호화
-    const merkleRoot: string = tree.root() || "0".repeat(64);
+    const merkleRoot: string = "0".repeat(64);
+    // const merkleRoot: string = tree.root() || "0".repeat(64);
     //루트값없으면 || 뒤에값 출력
     const difficulty: number = 15; //헤더값에 난이도 아직 0임
     const nonce: number = 0;
@@ -110,18 +120,18 @@ function createGenesisBlock() {
     return new Block(header, body);
 }
 
-let Blocks = [createGenesisBlock()];
+let Blocks1 = [createGenesisBlock()];
 //블록저장할수있는애들, 여러개 들어갈 수 있는 배열을 만들어줌
 
 //현재 있는 블록을 다 리턴해주는 함수, 블럭목록 부르는 함수
 function getBlocks() {
-    return Blocks;
+    return Blocks1;
 }
 
 //제일 마지막에 만든 블록 가져오기
 function getLastBlock() {
     //길이 1이니까 1-1 =0 즉 첫번째배열 불러와
-    return Blocks[Blocks.length - 1];
+    return Blocks1[Blocks1.length - 1];
 }
 
 function createHash(data) {
@@ -144,7 +154,7 @@ function createHash(data) {
         difficulty +
         nonce;
     //다 합쳐서 해시로 만들고 리턴
-    const hash = cryptojs.SHA256(blockString).toString();
+    const hash = sha256(blockString).toString();
     return hash;
 }
 
@@ -158,32 +168,58 @@ interface IBlock {
     nonce: number;
 }
 
-const calculateHash = (o: IBlock): string => {
+const calculateHash = (
+    currentVersion: string,
+    nextIndex: number,
+    previousHash: string,
+    nextTimestamp: number,
+    merkleRoot: string,
+    difficulty: number,
+    nonce: number
+): string => {
     //헤더의 값에 nonce값을 추가해서 모두 더한 string을 가지고 암호화
     //한 결과 hash를 내보낸다
     const blockString: string =
-        o.version +
-        o.index +
-        o.previousHash +
-        o.timestamp +
-        o.merkleRoot +
-        o.difficulty +
-        o.nonce;
-    const hash: string = cryptojs.SHA256(blockString).toString();
+        currentVersion +
+        nextIndex +
+        previousHash +
+        nextTimestamp +
+        merkleRoot +
+        difficulty +
+        nonce;
+    const hash: string = sha256(blockString).toString();
     return hash;
 };
+
+// const calculateHash = (o: IBlock): string => {
+//     //헤더의 값에 nonce값을 추가해서 모두 더한 string을 가지고 암호화
+//     //한 결과 hash를 내보낸다
+//     const blockString: string =
+//         o.version +
+//         o.index +
+//         o.previousHash +
+//         o.timestamp +
+//         o.merkleRoot +
+//         o.difficulty +
+//         o.nonce;
+//     const hash: string = sha256(blockString).toString();
+//     return hash;
+// };
 
 //다음블록 만들었을 때 기존 블록 정보 가져와
 function nextBlock(bodyData) {
     //마지막 블럭, 이전블록으로
     const prevBlock = getLastBlock();
-    const version = getVersion();
-    const index = prevBlock.header.index + 1;
+    const version: string = getVersion();
+    // const index: number = prevBlock.header.index + 1;
+    const index: number = 5;
     //이전 블록의 해시값
-    const previousHash = createHash(prevBlock);
-    const timestamp = parseInt(Date.now() / 1000);
-    const tree = merkle("sha256").sync(bodyData);
-    const merkleRoot = tree.root() || "0".repeat(64);
+    const previousHash: string = createHash(prevBlock);
+    // const timestamp: number = parseInt(Date.now() / 1000);
+    const timestamp: number = 1231006505;
+    const tree: string = merkle("sha256").sync(bodyData);
+    // const merkleRoot = tree.root() || "0".repeat(64);
+    const merkleRoot: string = "0".repeat(64);
     //난이도 조절하는 함수 추가
     const difficulty = getDifficulty(getBlocks());
     // const nonce = 0
@@ -201,7 +237,7 @@ function nextBlock(bodyData) {
 
 function addBlock1(bodyData) {
     const newBlock = nextBlock(bodyData);
-    Blocks.push(newBlock);
+    Blocks1.push(newBlock);
 }
 
 //0103
@@ -252,24 +288,47 @@ function hexToBinary(s) {
 }
 
 function hashMatchesDifficulty(hash, difficulty) {
-    //difficulty를 이용해 만든 조건을 만족하는지 hash값과 대조해
-    //조건에 해당되면 블록 생성
-    const hashBinary = hexToBinary(hash.toUpperCase());
-    //difficulty 난이도가 높아짐에 따라 0개수가 늘어남
+    if (hash) {
+        //difficulty를 이용해 만든 조건을 만족하는지 hash값과 대조해
+        //조건에 해당되면 블록 생성
+        const hashBinary = hexToBinary(hash.toUpperCase());
+        //difficulty 난이도가 높아짐에 따라 0개수가 늘어남
 
-    const requirePrefix = "0".repeat(difficulty);
+        const requirePrefix = "0".repeat(difficulty);
 
-    //높으면 높을수록 조건을 맞추기가 까다로워짐(nonce값과 time값이 바뀌면서 암호화값이 달라진다.)
-    return hashBinary.startsWith(requirePrefix);
+        //높으면 높을수록 조건을 맞추기가 까다로워짐(nonce값과 time값이 바뀌면서 암호화값이 달라진다.)
+
+        return "5";
+        // return hashBinary.startsWith(requirePrefix);
+    }
+}
+
+interface IFBlock {
+    currentVersion: string;
+    nextIndex: number;
+    previousHash: string;
+    nextTimestamp: number;
+    merkleRoot: string;
+    difficulty: number;
+}
+
+interface IHash {
+    currentVersion: string;
+    nextIndex: number;
+    previousHash: string;
+    nextTimestamp: number;
+    merkleRoot: string;
+    difficulty: number;
+    nonce: number;
 }
 
 function findBlock(
-    currentVersion,
-    nextIndex,
-    previousHash,
-    nextTimestamp,
-    merkleRoot,
-    difficulty
+    currentVersion: string,
+    nextIndex: number,
+    previousHash: string,
+    nextTimestamp: number,
+    merkleRoot: string,
+    difficulty: number
 ) {
     //calculateHash값이 조건이 맞을때까지 while문으로 반복
     //조건문 반복할때마다 nonce값 증가
@@ -284,6 +343,7 @@ function findBlock(
             difficulty,
             nonce
         );
+
         if (hashMatchesDifficulty(hash, difficulty)) {
             return new BlockHeader(
                 currentVersion,
@@ -316,11 +376,11 @@ function getDifficulty(blocks) {
     return lastBlock.header.difficulty;
 }
 
-function getAdjustDifficulty(lastBlock: object, blocks: object): number {
+function getAdjustDifficulty(lastBlock, blocks): number {
     // 지금 블록에서 난이도 조절 단위 수만큼의 전 블록과의 time
     //즉, 생성시간을 비교해서 자신의 예상 시간보다 느리거나 빠르면 난이도를 조절한다.
     //적당하면 난이도가 유지되고 블럭의 생성시간이 느리면 난이도를 낮추고, 빠르면 난이도를 높인다.
-    const preAdjustmentBlock :=
+    const preAdjustmentBlock =
         blocks[blocks.length - DIFFICULT_ADJUSTMENT_INTERVAL];
     //시간
     const elapsedTime: number =
@@ -342,7 +402,7 @@ function getCurrentTimestamp(): number {
     return Math.round(new Date().getTime() / 1000);
 }
 
-function isValidTimestamp(newBlock: object, prevBlock: object): boolean {
+function isValidTimestamp(newBlock, prevBlock): boolean {
     console.log(
         "시간 경과:",
         newBlock.header.timestamp - prevBlock.header.timestamp
@@ -364,7 +424,7 @@ export {
     isValidTimestamp,
     getBlocks,
     createHash,
-    Blocks,
+    Blocks1,
     getLastBlock,
     nextBlock,
     addBlock1,
