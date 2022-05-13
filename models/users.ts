@@ -1,4 +1,4 @@
-import { Model, Optional } from "sequelize";
+import { Model, Optional, DataTypes } from "sequelize";
 
 import { sequelize } from "./index";
 
@@ -6,6 +6,13 @@ interface UserAttributes {
     email: string;
     password: string;
 }
+
+// type UserAttributes = {
+//     email: string;
+//     password: string;
+// };
+
+// type UserCreationAttributes = Optional<UserAttributes, "id">;
 
 export class Users extends Model<UserAttributes> {
     public email!: string;

@@ -1,11 +1,13 @@
-const dotenv = require("dotenv");
-const path = require("path");
+import dotenv from "dotenv";
+dotenv.config();
+
+import path from "path";
 
 if (!process.env.MYSQL_HOST) {
     dotenv.config({ path: path.join(__dirname, "..", ".env") });
 }
 
-module.exports = {
+export const config = {
     host: process.env.MYSQL_HOST || "localhost",
     username: process.env.MYSQL_USER || "root",
     password: process.env.MYSQL_PASS,

@@ -1,41 +1,48 @@
 import path from "path";
+import fs from "fs";
 
-import Sequelize from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
 
-// Model 불러오기
-import Users from "./users";
-import Blocks from "./blocks";
-import Transactions from "./transactions";
+const db: any = {};
+const basename = path.basename(__filename);
 
 const env: string = process.env.NODE_ENV || "development";
 
 // MySQL connection setting
-import config from "../config/config";
+import { config } from "../config/config";
+
+console.log("hi");
+console.log(__dirname);
 
 const sequelize = new Sequelize(
     config.database,
     config.username,
     config.password,
-    config
+    {
+        host: config.host,
+        dialect: "mysql",
+    }
 );
 
-// db 객체에 모든 테이블 넣기
-const db: object = {
-    Sequelize = Sequelize,
-    sequelize = sequelize,
-    Users = Users,
-    Blocks = Blocks,
-    Transactions = Transactions,
-};
+fs.readdirSync(__dirname)
+    .filter((file: string) => {
+        return (
+            file.indexOf(".") !== 0 &&
+            file !== basename &&
+            file.slice(-3) === ".ts"
+        );
+    })
+    .forEach((file: any) => {
+        // const model = require(path.join(__dirname, file))(sequelize, DataTypes);
+        const model = import(path.join(__dirname, file)).then(
+            (a) => (db[file] = a)
+        );
+    });
 
-// MySQL에 모델 넣기
-Users.init(sequelize);
-Blocks.init(sequelize);
-Transactions.init(sequelize);
+Object.keys(db).forEach((modelName) => {
+    if (db[modelName].associate) {
+        db[modelName].associate(db);
+    }
+});
 
-// 관계 설정
-Users.associate(db);
-Blocks.associate(db);
-Transactions.associate(db);
-
-export { db };
+export { db, sequelize };

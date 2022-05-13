@@ -1,6 +1,7 @@
-import { Model, Optional } from "sequelize";
+import { Model, Optional, DataTypes } from "sequelize";
 
 import { sequelize } from "./index";
+
 import { Blocks } from "./blocks";
 
 interface TransactionAttributes {
@@ -27,32 +28,32 @@ Transactions.init(
     {
         index: {
             //   primarKey: true,
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
         id2: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
         txOutId: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
         txOutIndex: {
             allowNull: true,
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
         },
         signature: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
         address: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
         amount: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
     },
     {
@@ -65,7 +66,7 @@ Transactions.init(
     }
 );
 
-Transactions.belongsTo(Blocks, {
-    foreignKey: "index",
-    sourceKey: "index",
-});
+// Transactions.belongsTo(Blocks, {
+//     foreignKey: "index",
+//     sourceKey: "index",
+// });

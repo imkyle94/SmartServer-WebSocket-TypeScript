@@ -1,3 +1,7 @@
+import { Model, Optional, DataTypes } from "sequelize";
+
+import { sequelize } from "./index";
+
 import { Transactions } from "./transactions";
 
 interface BlockAttributes {
@@ -24,32 +28,32 @@ Blocks.init(
     {
         version: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
         index: {
             primaryKey: true,
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
         previousHash: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
         timestamp: {
             allowNull: true,
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
         },
         merkleRoot: {
             allowNull: true,
-            type: Sequelize.STRING(500),
+            type: DataTypes.STRING(500),
         },
         difficulty: {
             allowNull: true,
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
         },
         nonce: {
             allowNull: true,
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
         },
     },
     {
@@ -62,7 +66,9 @@ Blocks.init(
     }
 );
 
-Blocks.hasMany(Transactions, {
-    foreignKey: "index",
-    sourceKey: "index",
-});
+console.log(Blocks);
+
+// Blocks.hasMany(Transactions, {
+//     foreignKey: "index",
+//     sourceKey: "index",
+// });
